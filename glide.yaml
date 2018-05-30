@@ -1,0 +1,20 @@
+package: github.com/youkoulayley/terraform-provider-calico
+import:
+- package: github.com/hashicorp/terraform
+  version: ^0.11.7
+  subpackages:
+  - helper/schema
+  - plugin
+  - terraform
+- package: github.com/projectcalico/libcalico-go
+  version: release-v3.1
+  subpackages:
+  - lib/apiconfig
+  - lib/apis/v3
+  - lib/clientv3
+  - lib/errors
+  - lib/net
+  - lib/options
+- package: k8s.io/apimachinery
+  subpackages:
+  - pkg/apis/meta/v1
