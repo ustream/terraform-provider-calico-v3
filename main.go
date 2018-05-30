@@ -4,7 +4,7 @@ package main
 import (
 	"github.com/hashicorp/terraform/plugin"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/youkoulayley/terraform-provider-calico/calico"
+	"github.com/cdiscount/terraform-provider-calico/calico"
 )
 
 func main() {
