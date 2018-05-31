@@ -20,5 +20,5 @@ make build
 * [Configure the provider](docs/provider.md)
 * Resources
   * [IP Pools](docs/ippools.md)
-  * [BGP Peers](docs/bgppeers.md) 
-  
+  * [BGP Peers](docs/bgppeers.md)
+  * [BGP Configurations](docs/bgpconfigurations.md)

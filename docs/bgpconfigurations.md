@@ -1,15 +1,16 @@
 # BGP Peers
+A BGP configuration resource (BGPConfiguration) represents BGP specific configuration options for the cluster.
 
 You can declare a BGP Peer with this configuration : 
 
 ```hcl
-resource "calico_bgppeer" "default" {
+resource "calico_bgpconfiguration" "default" {
   metadata {
-    name = "Router1"
+    name = "Config1"
   }
   spec {
-    node = "global"
-    peer_ip = "192.168.0.5"
+    log_severity_screen = "Warning"
+    node_to_node_mesh_enabled = "false"
     as_number = "62523"
   }
 }
@@ -20,12 +21,17 @@ resource "calico_bgppeer" "default" {
 |**Field**|**Description**|**Accepted Values**|**Schema**|
 |---------|---------------|-------------------|----------|
 |name|The name of this IPPool resource. Required.|Alphanumeric string with optional ., _, or -.|string|
+
+* The resource with the name default has a specific meaning - this contains the BGP global default configuration.
+* The resources with the name `node.<nodename>` contain the node-specific overrides, and will be applied to the node <nodename>. When deleting a node the FelixConfiguration resource associated with the node will also be deleted.
   
-  
+
 ## spec
 
-|**Field**|**Description**|**Accepted Values**|**Schema**|
-|---------|---------------|-------------------|----------|
-|node|If specified, the scope is node level, otherwise the scope is global.|The hostname of the node to which this peer applies.|string| 
-|peerIP|The IP address of this peer.|Valid IPv4 or IPv6 address.|string| 
-|asNumber|The AS Number of this peer.|A valid AS Number, may be specified in dotted notation.|integer/string| 
+|**Field**|**Description**|**Accepted Values**|**Schema**|**Default**|
+|---------|---------------|-------------------|----------|-----------|
+|logSeverityScreen|Global log level|Debug, Info, Warning, Error, Fatal|string|Info|
+|nodeToNodeMeshEnabled|Full BGP node-to-node mesh|true, false|string|true|
+|asNumber|The AS Number of this peer.|A valid AS Number, may be specified in dotted notation.|integer/string|64512|
+
+More informations [here](https://docs.projectcalico.org/v3.1/reference/calicoctl/resources/bgpconfig)
