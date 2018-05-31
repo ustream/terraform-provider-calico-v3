@@ -18,3 +18,4 @@ import:
 - package: k8s.io/apimachinery
   subpackages:
   - pkg/apis/meta/v1
+- package: github.com/hashicorp/logutils

@@ -1,4 +1,5 @@
 # IP Pools
+An IP pool resource (IPPool) represents a collection of IP addresses from which Calico expects endpoint IPs to be assigned.
 
 You can declare an ippool with this configuration : 
 
@@ -31,3 +32,5 @@ resource "calico_ippool" "default" {
 |ipipMode|The IPIP mode defining when IPIP will be used.|Always, CrossSubnet, Never|string|Never|
 |natOutgoing|When enabled, packets sent from Calico networked containers in this pool to destinations outside of this pool will be masqueraded.|true, false|boolean|false|
 |disabled|When set to true, Calico IPAM will not assign addresses from this pool.|true, false|boolean|false|
+
+More informations [here](https://docs.projectcalico.org/v3.1/reference/calicoctl/resources/ippool).

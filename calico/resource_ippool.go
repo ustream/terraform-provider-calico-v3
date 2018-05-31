@@ -1,12 +1,12 @@
 package calico
 
 import (
-	"log"
 	"github.com/hashicorp/terraform/helper/schema"
+	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"log"
 )
 
 func resourceCalicoIpPool() *schema.Resource {
@@ -17,8 +17,8 @@ func resourceCalicoIpPool() *schema.Resource {
 		Delete: resourceCalicoIpPoolDelete,
 
 		Schema: map[string]*schema.Schema{
-			"metadata": &schema.Schema {
-				Type: schema.TypeList,
+			"metadata": &schema.Schema{
+				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
@@ -47,7 +47,7 @@ func resourceCalicoIpPool() *schema.Resource {
 							Optional: true,
 						},
 						"ipip_mode": &schema.Schema{
-							Type: schema.TypeString,
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 						"disabled": &schema.Schema{
@@ -68,8 +68,9 @@ func dToIpPoolSpec(d *schema.ResourceData) (api.IPPoolSpec, error) {
 	cidr := d.Get("spec.0.cidr").(string)
 	spec.CIDR = cidr
 
-	ipipMode := d.Get("spec.0.ipip_mode").(api.IPIPMode)
-	spec.IPIPMode = ipipMode
+	//TODO: Reactivate this field
+	//ipipMode := d.Get("spec.0.ipip_mode").(api.IPIPMode)
+	//spec.IPIPMode = ipipMode
 
 	natOutgoing := d.Get("spec.0.nat_outgoing").(bool)
 	spec.NATOutgoing = natOutgoing

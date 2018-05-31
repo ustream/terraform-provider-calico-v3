@@ -1,13 +1,12 @@
 package calico
 
 import (
-	"log"
 	"github.com/hashicorp/terraform/helper/schema"
+	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"github.com/projectcalico/libcalico-go/lib/numorstring"
+	"log"
 )
 
 func resourceCalicoBgpPeer() *schema.Resource {
@@ -18,8 +17,8 @@ func resourceCalicoBgpPeer() *schema.Resource {
 		Delete: resourceCalicoBgpPeerDelete,
 
 		Schema: map[string]*schema.Schema{
-			"metadata": &schema.Schema {
-				Type: schema.TypeList,
+			"metadata": &schema.Schema{
+				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
@@ -44,11 +43,11 @@ func resourceCalicoBgpPeer() *schema.Resource {
 							ForceNew: true,
 						},
 						"peer_ip": &schema.Schema{
-							Type:     schema.TypeBool,
+							Type:schema. TypeString,
 							Optional: true,
 						},
 						"as_number": &schema.Schema{
-							Type: schema.TypeString,
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 					},
@@ -68,8 +67,9 @@ func dToBgpPeerSpec(d *schema.ResourceData) (api.BGPPeerSpec, error) {
 	peerIp := d.Get("spec.0.peer_ip").(string)
 	spec.PeerIP = peerIp
 
-	asNumber := d.Get("spec.0.as_number").(numorstring.ASNumber)
-	spec.ASNumber = asNumber
+	//TODO: Reactivate this field
+	//asNumber := d.Get("spec.0.as_number")
+	//spec.ASNumber = asNumber.(numorstring.ASNumber)
 
 	return spec, nil
 }
@@ -126,7 +126,7 @@ func resourceCalicoBgpPeerRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("metadata.0.name", BgpPeer.ObjectMeta.Name)
 	d.Set("spec.0.node", BgpPeer.Spec.Node)
 	d.Set("spec.0.peer_ip", BgpPeer.Spec.PeerIP)
-	d.Set("spec.0.as_number", BgpPeer.Spec.ASNumber)
+	d.Set("spec.0.as_number", BgpPeer.Spec.ASNumber.String())
 
 	return nil
 }
@@ -180,7 +180,7 @@ func createBgpPeerApiRequest(d *schema.ResourceData) (*api.BGPPeer, error) {
 		return nil, err
 	}
 
-	// Create a new IP Pool, with TypeMeta filled in
+	// Create a new BGP Peer, with TypeMeta filled in
 	// Then, fill the metadata and the spec
 	newBgpPeer := api.NewBGPPeer()
 	newBgpPeer.ObjectMeta = objectMeta
