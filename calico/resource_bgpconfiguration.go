@@ -4,7 +4,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
-	"github.com/projectcalico/libcalico-go/lib/numorstring"
 	"github.com/projectcalico/libcalico-go/lib/options"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
@@ -68,8 +67,9 @@ func dToBgpConfigurationSpec(d *schema.ResourceData) (api.BGPConfigurationSpec, 
 	nodeToNodeMeshEnabled := d.Get("spec.0.node_to_node_mesh_enabled").(bool)
 	spec.NodeToNodeMeshEnabled = &nodeToNodeMeshEnabled
 
-	asNumber := d.Get("spec.0.as_number").(numorstring.ASNumber)
-	spec.ASNumber = &asNumber
+	//TODO: Reactivate this field
+	//asNumber := d.Get("spec.0.as_number").(numorstring.ASNumber)
+	//spec.ASNumber = &asNumber
 
 	return spec, nil
 }

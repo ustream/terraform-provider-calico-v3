@@ -1,13 +1,13 @@
 package calico
 
 import (
+	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	"testing"
-	"errors"
 	"strings"
+	"testing"
 )
 
 func TestAccBgpPeer(t *testing.T) {
@@ -50,10 +50,10 @@ func testAccCheckBgpPeerDestroy(state *terraform.State) error {
 	_, err := client.BGPPeers().Get(ctx, apis[0].Primary.ID, options.GetOptions{})
 
 	switch {
-		case err == nil:
-			return errors.New("Expected error, got none")
-		case err != nil && !strings.Contains(err.Error(), "resource does not exist"):
-			return fmt.Errorf("Expected 404, got %s", err)
+	case err == nil:
+		return errors.New("Expected error, got none")
+	case err != nil && !strings.Contains(err.Error(), "resource does not exist"):
+		return fmt.Errorf("Expected 404, got %s", err)
 	}
 
 	return nil

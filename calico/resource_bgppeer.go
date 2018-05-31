@@ -43,7 +43,7 @@ func resourceCalicoBgpPeer() *schema.Resource {
 							ForceNew: true,
 						},
 						"peer_ip": &schema.Schema{
-							Type:schema. TypeString,
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 						"as_number": &schema.Schema{
