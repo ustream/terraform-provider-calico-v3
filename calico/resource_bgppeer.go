@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
+	"github.com/projectcalico/libcalico-go/lib/numorstring"
 	"github.com/projectcalico/libcalico-go/lib/options"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
@@ -26,7 +27,7 @@ func resourceCalicoBgpPeer() *schema.Resource {
 						"name": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
+							ForceNew: true,
 						},
 					},
 				},
@@ -47,7 +48,7 @@ func resourceCalicoBgpPeer() *schema.Resource {
 							Optional: true,
 						},
 						"as_number": &schema.Schema{
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Optional: true,
 						},
 					},
@@ -57,19 +58,20 @@ func resourceCalicoBgpPeer() *schema.Resource {
 	}
 }
 
+func dToAsNumber(d *schema.ResourceData, field string) numorstring.ASNumber {
+	asNumber := numorstring.ASNumber(uint(d.Get(field).(int)))
+	return asNumber
+}
+
 // dToBgpPeerSpec return the spec of the BgpPeer
 func dToBgpPeerSpec(d *schema.ResourceData) (api.BGPPeerSpec, error) {
 	spec := api.BGPPeerSpec{}
 
-	node := d.Get("spec.0.node").(string)
-	spec.Node = node
-
-	peerIp := d.Get("spec.0.peer_ip").(string)
-	spec.PeerIP = peerIp
+	spec.Node = d.Get("spec.0.node").(string)
+	spec.PeerIP = d.Get("spec.0.peer_ip").(string)
 
 	//TODO: Reactivate this field
-	//asNumber := d.Get("spec.0.as_number")
-	//spec.ASNumber = asNumber.(numorstring.ASNumber)
+	spec.ASNumber = dToAsNumber(d, "spec.0.as_number")
 
 	return spec, nil
 }

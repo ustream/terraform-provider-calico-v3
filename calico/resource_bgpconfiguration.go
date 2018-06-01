@@ -61,11 +61,13 @@ func resourceCalicoBgpConfiguration() *schema.Resource {
 func dToBgpConfigurationSpec(d *schema.ResourceData) (api.BGPConfigurationSpec, error) {
 	spec := api.BGPConfigurationSpec{}
 
-	logSeverityScreen := d.Get("spec.0.log_severity_screen").(string)
-	spec.LogSeverityScreen = logSeverityScreen
+	// NodeToNodeMesh can only be set on global configuration
+	if d.Get("metadata.0.name").(string) == "default" {
+		nodeToNodeMeshEnabled := d.Get("spec.0.node_to_node_mesh_enabled").(bool)
+		spec.NodeToNodeMeshEnabled = &nodeToNodeMeshEnabled
+	}
 
-	nodeToNodeMeshEnabled := d.Get("spec.0.node_to_node_mesh_enabled").(bool)
-	spec.NodeToNodeMeshEnabled = &nodeToNodeMeshEnabled
+	spec.LogSeverityScreen = d.Get("spec.0.log_severity_screen").(string)
 
 	//TODO: Reactivate this field
 	//asNumber := d.Get("spec.0.as_number").(numorstring.ASNumber)

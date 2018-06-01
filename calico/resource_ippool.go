@@ -61,22 +61,21 @@ func resourceCalicoIpPool() *schema.Resource {
 	}
 }
 
+func dToIpIpMode(d *schema.ResourceData, field string) api.IPIPMode {
+	ipipMode := api.IPIPMode(d.Get(field).(string))
+	return ipipMode
+}
+
 // dToIpPoolSpec return the spec of the ippool
 func dToIpPoolSpec(d *schema.ResourceData) (api.IPPoolSpec, error) {
 	spec := api.IPPoolSpec{}
 
-	cidr := d.Get("spec.0.cidr").(string)
-	spec.CIDR = cidr
+	spec.CIDR = d.Get("spec.0.cidr").(string)
+	spec.NATOutgoing = d.Get("spec.0.nat_outgoing").(bool)
+	spec.Disabled = d.Get("spec.0.disabled").(bool)
 
 	//TODO: Reactivate this field
-	//ipipMode := d.Get("spec.0.ipip_mode").(api.IPIPMode)
-	//spec.IPIPMode = ipipMode
-
-	natOutgoing := d.Get("spec.0.nat_outgoing").(bool)
-	spec.NATOutgoing = natOutgoing
-
-	disabled := d.Get("spec.0.disabled").(bool)
-	spec.Disabled = disabled
+	spec.IPIPMode = dToIpIpMode(d, "spec.0.ipip_mode")
 
 	return spec, nil
 }

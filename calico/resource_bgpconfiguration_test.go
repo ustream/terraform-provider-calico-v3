@@ -19,7 +19,7 @@ func TestAccBgpConfiguration(t *testing.T) {
 				Config: testCreateBgpConfigurationConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBgpConfigurationExists("calico_bgpconfiguration.test"),
-					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "metadata.0.name", "testbgpconfiguration"),
+					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "metadata.0.name", "default"),
 					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.log_severity_screen", "Warning"),
 					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.node_to_node_mesh_enabled", "false"),
 				),
@@ -28,9 +28,8 @@ func TestAccBgpConfiguration(t *testing.T) {
 				Config: testUpdateBgpConfigurationConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBgpConfigurationExists("calico_bgpconfiguration.test"),
-					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "metadata.0.name", "testbgpconfiguration2"),
+					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "metadata.0.name", "testbgp"),
 					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.log_severity_screen", "Info"),
-					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.node_to_node_mesh_enabled", "true"),
 				),
 			},
 		},
@@ -41,7 +40,7 @@ func testAccCheckBgpConfigurationDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(config).Client
 
-	apis := getResourcesByType("calico_BgpConfiguration", state)
+	apis := getResourcesByType("calico_bgpconfiguration", state)
 
 	if len(apis) != 1 {
 		return fmt.Errorf("expecting only 1 BgpConfiguration resource found %v", len(apis))
@@ -87,23 +86,23 @@ func testAccCheckBgpConfigurationExists(resourceKey string) resource.TestCheckFu
 }
 
 const testCreateBgpConfigurationConfig = `
-resource "calico_BgpConfiguration" "test" {
+resource "calico_bgpconfiguration" "test" {
   metadata{
-    name = "testbgpconfiguration"
+    name = "default"
   }
   spec{
     log_severity_screen = "Warning"
-    node_to_node_mesh_enabled = "false"
+    node_to_node_mesh_enabled = false
   }
 }`
 
 const testUpdateBgpConfigurationConfig = `
-resource "calico_BgpConfiguration" "test" {
+resource "calico_bgpconfiguration" "test" {
   metadata{
-    name = "testbgpconfiguration2"
+    name = "testbgp"
   }
   spec{
     log_severity_screen = "Info"
-    node_to_node_mesh_enabled = "true"
+    node_to_node_mesh_enabled = true
   }
 }`

@@ -7,10 +7,12 @@ all: run
 run:
 	echo "Doing nothing"
 
-build: test
+vendor:
 	glide install
 	# remove vendor from terraform (FIX for https://github.com/coreos/etcd/issues/9357)
 	@rm -rf vendor/github.com/hashicorp/terraform/vendor
+
+build: vendor test
 	go build
 
 test: fmt
@@ -31,7 +33,7 @@ test: fmt
  			--initial-cluster-state new
 
 	CALICO_BACKEND_TYPE="etcdv3" CALICO_ETCD_ENDPOINTS="http://127.0.0.1:2379" go test -v ./calico
-	CALICO_BACKEND_TYPE="etcdv3" CALICO_ETCD_ENDPOINTS="http://127.0.0.1:2379" go test -v ./calico -run="TestAcc"
+	TF_ACC=1 CALICO_BACKEND_TYPE="etcdv3" CALICO_ETCD_ENDPOINTS="http://127.0.0.1:2379" go test -v ./calico -run="TestAcc"
 	docker rm -f etcd_test
 
 fmt:
