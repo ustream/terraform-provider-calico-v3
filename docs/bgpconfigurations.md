@@ -30,8 +30,8 @@ resource "calico_bgpconfiguration" "default" {
 
 |**Field**|**Description**|**Accepted Values**|**Schema**|**Default**|
 |---------|---------------|-------------------|----------|-----------|
-|logSeverityScreen|Global log level|Debug, Info, Warning, Error, Fatal|string|Info|
-|nodeToNodeMeshEnabled|Full BGP node-to-node mesh|true, false|string|true|
-|asNumber|The AS Number of this peer.|A valid AS Number, may be specified in dotted notation.|integer/string|64512|
+|log_severity_screen|Global log level|Debug, Info, Warning, Error, Fatal|string|Info|
+|node_to_node_mesh_enabled|Full BGP node-to-node mesh|true, false|string|true|
+|as_number|The AS Number of this peer.|A valid AS Number, may be specified in dotted notation.|integer/string|64512|
 
-More informations [here](https://docs.projectcalico.org/v3.1/reference/calicoctl/resources/bgpconfig)
+More informations on configuration [here](https://docs.projectcalico.org/v3.1/reference/calicoctl/resources/bgpconfig)
