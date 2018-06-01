@@ -5,7 +5,6 @@ import (
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
 )
 
@@ -47,7 +46,7 @@ func resourceCalicoBgpConfiguration() *schema.Resource {
 							Optional: true,
 						},
 						"as_number": &schema.Schema{
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Optional: true,
 						},
 					},
@@ -61,28 +60,18 @@ func resourceCalicoBgpConfiguration() *schema.Resource {
 func dToBgpConfigurationSpec(d *schema.ResourceData) (api.BGPConfigurationSpec, error) {
 	spec := api.BGPConfigurationSpec{}
 
-	// NodeToNodeMesh can only be set on global configuration
-	if d.Get("metadata.0.name").(string) == "default" {
-		nodeToNodeMeshEnabled := d.Get("spec.0.node_to_node_mesh_enabled").(bool)
+	// NodeToNodeMesh and ASNumber can only be set on global configuration
+	if dToString(d, "metadata.0.name") == "default" {
+		nodeToNodeMeshEnabled := dToBool(d, "spec.0.node_to_node_mesh_enabled")
 		spec.NodeToNodeMeshEnabled = &nodeToNodeMeshEnabled
+
+		asNumber := dToAsNumber(d, "spec.0.as_number")
+		spec.ASNumber = &asNumber
 	}
 
-	spec.LogSeverityScreen = d.Get("spec.0.log_severity_screen").(string)
-
-	//TODO: Reactivate this field
-	//asNumber := d.Get("spec.0.as_number").(numorstring.ASNumber)
-	//spec.ASNumber = &asNumber
+	spec.LogSeverityScreen = dToString(d, "spec.0.log_severity_screen")
 
 	return spec, nil
-}
-
-// dToBgpConfigurationSpec return the metadata of the BgpConfiguration
-func dToBgpConfigurationTypeMeta(d *schema.ResourceData) (meta.ObjectMeta, error) {
-	objectMeta := meta.ObjectMeta{}
-
-	objectMeta.Name = d.Get("metadata.0.name").(string)
-
-	return objectMeta, nil
 }
 
 // resourceCalicoBgpConfigurationCreate create a new BgpConfiguration in Calico
@@ -109,7 +98,7 @@ func resourceCalicoBgpConfigurationRead(d *schema.ResourceData, m interface{}) e
 	calicoClient := m.(config).Client
 	BgpConfigurationInterface := calicoClient.BGPConfigurations()
 
-	nameBgpConfiguration := d.Get("metadata.0.name").(string)
+	nameBgpConfiguration := dToString(d, "metadata.0.name")
 
 	BgpConfiguration, err := BgpConfigurationInterface.Get(ctx, nameBgpConfiguration, options.GetOptions{})
 	log.Printf("Obj: %+v", d)
@@ -158,7 +147,7 @@ func resourceCalicoBgpConfigurationDelete(d *schema.ResourceData, m interface{})
 	calicoClient := m.(config).Client
 	BgpConfigurationInterface := calicoClient.BGPConfigurations()
 
-	nameBgpConfiguration := d.Get("metadata.0.name").(string)
+	nameBgpConfiguration := dToString(d, "metadata.0.name")
 
 	_, err := BgpConfigurationInterface.Delete(ctx, nameBgpConfiguration, options.DeleteOptions{})
 	if err != nil {
@@ -177,7 +166,7 @@ func createBgpConfigurationApiRequest(d *schema.ResourceData) (*api.BGPConfigura
 	}
 
 	// Set Metadata to Kubernetes Metadata
-	objectMeta, err := dToBgpConfigurationTypeMeta(d)
+	objectMeta, err := dToTypeMeta(d)
 	if err != nil {
 		return nil, err
 	}

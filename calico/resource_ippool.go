@@ -5,7 +5,6 @@ import (
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
 )
 
@@ -61,33 +60,20 @@ func resourceCalicoIpPool() *schema.Resource {
 	}
 }
 
-func dToIpIpMode(d *schema.ResourceData, field string) api.IPIPMode {
-	ipipMode := api.IPIPMode(d.Get(field).(string))
-	return ipipMode
-}
-
 // dToIpPoolSpec return the spec of the ippool
 func dToIpPoolSpec(d *schema.ResourceData) (api.IPPoolSpec, error) {
 	spec := api.IPPoolSpec{}
 
-	spec.CIDR = d.Get("spec.0.cidr").(string)
-	spec.NATOutgoing = d.Get("spec.0.nat_outgoing").(bool)
-	spec.Disabled = d.Get("spec.0.disabled").(bool)
-
-	//TODO: Reactivate this field
+	spec.CIDR = dToString(d,"spec.0.cidr")
+	spec.NATOutgoing = dToBool(d,"spec.0.nat_outgoing")
+	spec.Disabled = dToBool(d,"spec.0.disabled")
 	spec.IPIPMode = dToIpIpMode(d, "spec.0.ipip_mode")
 
 	return spec, nil
 }
 
 // dToIpPoolSpec return the metadata of the ippool
-func dToIpPoolTypeMeta(d *schema.ResourceData) (meta.ObjectMeta, error) {
-	objectMeta := meta.ObjectMeta{}
 
-	objectMeta.Name = d.Get("metadata.0.name").(string)
-
-	return objectMeta, nil
-}
 
 // resourceCalicoIpPoolCreate create a new ippool in Calico
 func resourceCalicoIpPoolCreate(d *schema.ResourceData, m interface{}) error {
@@ -113,7 +99,7 @@ func resourceCalicoIpPoolRead(d *schema.ResourceData, m interface{}) error {
 	calicoClient := m.(config).Client
 	ipPoolInterface := calicoClient.IPPools()
 
-	nameIpPool := d.Get("metadata.0.name").(string)
+	nameIpPool := dToString(d,"metadata.0.name")
 
 	ipPool, err := ipPoolInterface.Get(ctx, nameIpPool, options.GetOptions{})
 	log.Printf("Obj: %+v", d)
@@ -163,7 +149,7 @@ func resourceCalicoIpPoolDelete(d *schema.ResourceData, m interface{}) error {
 	calicoClient := m.(config).Client
 	ipPoolInterface := calicoClient.IPPools()
 
-	nameIpPool := d.Get("metadata.0.name").(string)
+	nameIpPool := dToString(d,"metadata.0.name")
 
 	_, err := ipPoolInterface.Delete(ctx, nameIpPool, options.DeleteOptions{})
 	if err != nil {
@@ -182,12 +168,13 @@ func createIpPoolApiRequest(d *schema.ResourceData) (*api.IPPool, error) {
 	}
 
 	// Set Metadata to Kubernetes Metadata
-	objectMeta, err := dToIpPoolTypeMeta(d)
+	objectMeta, err := dToTypeMeta(d)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create a new IP Pool, with TypeMeta filled in
+	// Then, fill the metadata and the spec
 	// Then, fill the metadata and the spec
 	newIpPool := api.NewIPPool()
 	newIpPool.ObjectMeta = objectMeta

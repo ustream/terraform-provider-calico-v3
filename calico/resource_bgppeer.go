@@ -4,9 +4,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
-	"github.com/projectcalico/libcalico-go/lib/numorstring"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
 )
 
@@ -58,31 +56,15 @@ func resourceCalicoBgpPeer() *schema.Resource {
 	}
 }
 
-func dToAsNumber(d *schema.ResourceData, field string) numorstring.ASNumber {
-	asNumber := numorstring.ASNumber(uint(d.Get(field).(int)))
-	return asNumber
-}
-
 // dToBgpPeerSpec return the spec of the BgpPeer
 func dToBgpPeerSpec(d *schema.ResourceData) (api.BGPPeerSpec, error) {
 	spec := api.BGPPeerSpec{}
 
-	spec.Node = d.Get("spec.0.node").(string)
-	spec.PeerIP = d.Get("spec.0.peer_ip").(string)
-
-	//TODO: Reactivate this field
+	spec.Node = dToString(d, "spec.0.node")
+	spec.PeerIP = dToString(d, "spec.0.peer_ip")
 	spec.ASNumber = dToAsNumber(d, "spec.0.as_number")
 
 	return spec, nil
-}
-
-// dToBgpPeerSpec return the metadata of the BgpPeer
-func dToBgpPeerTypeMeta(d *schema.ResourceData) (meta.ObjectMeta, error) {
-	objectMeta := meta.ObjectMeta{}
-
-	objectMeta.Name = d.Get("metadata.0.name").(string)
-
-	return objectMeta, nil
 }
 
 // resourceCalicoBgpPeerCreate create a new BgpPeer in Calico
@@ -109,7 +91,7 @@ func resourceCalicoBgpPeerRead(d *schema.ResourceData, m interface{}) error {
 	calicoClient := m.(config).Client
 	BgpPeerInterface := calicoClient.BGPPeers()
 
-	nameBgpPeer := d.Get("metadata.0.name").(string)
+	nameBgpPeer := dToString(d, "metadata.0.name")
 
 	BgpPeer, err := BgpPeerInterface.Get(ctx, nameBgpPeer, options.GetOptions{})
 	log.Printf("Obj: %+v", d)
@@ -158,7 +140,7 @@ func resourceCalicoBgpPeerDelete(d *schema.ResourceData, m interface{}) error {
 	calicoClient := m.(config).Client
 	BgpPeerInterface := calicoClient.BGPPeers()
 
-	nameBgpPeer := d.Get("metadata.0.name").(string)
+	nameBgpPeer := dToString(d, "metadata.0.name")
 
 	_, err := BgpPeerInterface.Delete(ctx, nameBgpPeer, options.DeleteOptions{})
 	if err != nil {
@@ -177,7 +159,7 @@ func createBgpPeerApiRequest(d *schema.ResourceData) (*api.BGPPeer, error) {
 	}
 
 	// Set Metadata to Kubernetes Metadata
-	objectMeta, err := dToBgpPeerTypeMeta(d)
+	objectMeta, err := dToTypeMeta(d)
 	if err != nil {
 		return nil, err
 	}

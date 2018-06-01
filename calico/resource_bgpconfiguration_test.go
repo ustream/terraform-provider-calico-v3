@@ -22,6 +22,7 @@ func TestAccBgpConfiguration(t *testing.T) {
 					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "metadata.0.name", "default"),
 					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.log_severity_screen", "Warning"),
 					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.node_to_node_mesh_enabled", "false"),
+					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.as_number", "62512"),
 				),
 			},
 			{
@@ -30,6 +31,7 @@ func TestAccBgpConfiguration(t *testing.T) {
 					testAccCheckBgpConfigurationExists("calico_bgpconfiguration.test"),
 					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "metadata.0.name", "testbgp"),
 					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.log_severity_screen", "Info"),
+					resource.TestCheckResourceAttr("calico_bgpconfiguration.test", "spec.0.as_number", "62513"),
 				),
 			},
 		},
@@ -93,6 +95,7 @@ resource "calico_bgpconfiguration" "test" {
   spec{
     log_severity_screen = "Warning"
     node_to_node_mesh_enabled = false
+	as_number = 62512
   }
 }`
 
@@ -104,5 +107,6 @@ resource "calico_bgpconfiguration" "test" {
   spec{
     log_severity_screen = "Info"
     node_to_node_mesh_enabled = true
+	as_number = 62513
   }
 }`

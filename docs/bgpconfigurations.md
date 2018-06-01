@@ -10,8 +10,8 @@ resource "calico_bgpconfiguration" "default" {
   }
   spec {
     log_severity_screen = "Warning"
-    node_to_node_mesh_enabled = "false"
-    as_number = "62523"
+    node_to_node_mesh_enabled = false
+    as_number = 62523
   }
 }
 ```

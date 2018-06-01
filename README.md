@@ -22,3 +22,12 @@ make build
   * [IP Pools](docs/ippools.md)
   * [BGP Peers](docs/bgppeers.md)
   * [BGP Configurations](docs/bgpconfigurations.md)
+
+## Testing
+The tests can be run with a ETCD dockerized with this command:
+
+```bash
+make test
+```
+
+The average test coverage result is **70%**.

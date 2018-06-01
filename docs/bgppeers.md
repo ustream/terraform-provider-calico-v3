@@ -13,7 +13,7 @@ resource "calico_bgppeer" "default" {
   spec {
     node = "global"
     peer_ip = "192.168.0.5"
-    as_number = "62523"
+    as_number = 62523
   }
 }
 ```
