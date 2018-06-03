@@ -32,7 +32,7 @@ test: fmt
  			--initial-cluster etcd_test=http://172.17.0.2:2380 \
  			--initial-cluster-state new
 
-	TF_ACC=1 CALICO_BACKEND_TYPE="etcdv3" CALICO_ETCD_ENDPOINTS="http://127.0.0.1:2379" go test -coverprofile fmt -v ./calico -run="TestAcc"
+	TF_ACC=1 CALICO_BACKEND_TYPE="etcdv3" CALICO_ETCD_ENDPOINTS="http://127.0.0.1:2379" go test -v ./calico -run="TestAcc"
 	docker rm -f etcd_test
 
 fmt:

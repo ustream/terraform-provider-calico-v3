@@ -5,7 +5,6 @@ import (
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	"log"
 )
 
 func resourceCalicoBgpPeer() *schema.Resource {
@@ -16,13 +15,13 @@ func resourceCalicoBgpPeer() *schema.Resource {
 		Delete: resourceCalicoBgpPeerDelete,
 
 		Schema: map[string]*schema.Schema{
-			"metadata": &schema.Schema{
+			"metadata": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
@@ -30,22 +29,22 @@ func resourceCalicoBgpPeer() *schema.Resource {
 					},
 				},
 			},
-			"spec": &schema.Schema{
+			"spec": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"node": &schema.Schema{
+						"node": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-						"peer_ip": &schema.Schema{
+						"peer_ip": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"as_number": &schema.Schema{
+						"as_number": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
@@ -94,7 +93,6 @@ func resourceCalicoBgpPeerRead(d *schema.ResourceData, m interface{}) error {
 	nameBgpPeer := dToString(d, "metadata.0.name")
 
 	BgpPeer, err := BgpPeerInterface.Get(ctx, nameBgpPeer, options.GetOptions{})
-	log.Printf("Obj: %+v", d)
 
 	// Handle endpoint does not exist
 	if err != nil {

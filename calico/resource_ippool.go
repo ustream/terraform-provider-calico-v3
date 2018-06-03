@@ -5,7 +5,6 @@ import (
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	"log"
 )
 
 func resourceCalicoIpPool() *schema.Resource {
@@ -16,13 +15,13 @@ func resourceCalicoIpPool() *schema.Resource {
 		Delete: resourceCalicoIpPoolDelete,
 
 		Schema: map[string]*schema.Schema{
-			"metadata": &schema.Schema{
+			"metadata": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: false,
@@ -30,26 +29,26 @@ func resourceCalicoIpPool() *schema.Resource {
 					},
 				},
 			},
-			"spec": &schema.Schema{
+			"spec": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"cidr": &schema.Schema{
+						"cidr": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-						"nat_outgoing": &schema.Schema{
+						"nat_outgoing": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"ipip_mode": &schema.Schema{
+						"ipip_mode": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"disabled": &schema.Schema{
+						"disabled": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
@@ -64,16 +63,15 @@ func resourceCalicoIpPool() *schema.Resource {
 func dToIpPoolSpec(d *schema.ResourceData) (api.IPPoolSpec, error) {
 	spec := api.IPPoolSpec{}
 
-	spec.CIDR = dToString(d,"spec.0.cidr")
-	spec.NATOutgoing = dToBool(d,"spec.0.nat_outgoing")
-	spec.Disabled = dToBool(d,"spec.0.disabled")
+	spec.CIDR = dToString(d, "spec.0.cidr")
+	spec.NATOutgoing = dToBool(d, "spec.0.nat_outgoing")
+	spec.Disabled = dToBool(d, "spec.0.disabled")
 	spec.IPIPMode = dToIpIpMode(d, "spec.0.ipip_mode")
 
 	return spec, nil
 }
 
 // dToIpPoolSpec return the metadata of the ippool
-
 
 // resourceCalicoIpPoolCreate create a new ippool in Calico
 func resourceCalicoIpPoolCreate(d *schema.ResourceData, m interface{}) error {
@@ -99,10 +97,9 @@ func resourceCalicoIpPoolRead(d *schema.ResourceData, m interface{}) error {
 	calicoClient := m.(config).Client
 	ipPoolInterface := calicoClient.IPPools()
 
-	nameIpPool := dToString(d,"metadata.0.name")
+	nameIpPool := dToString(d, "metadata.0.name")
 
 	ipPool, err := ipPoolInterface.Get(ctx, nameIpPool, options.GetOptions{})
-	log.Printf("Obj: %+v", d)
 
 	// Handle endpoint does not exist
 	if err != nil {
@@ -149,7 +146,7 @@ func resourceCalicoIpPoolDelete(d *schema.ResourceData, m interface{}) error {
 	calicoClient := m.(config).Client
 	ipPoolInterface := calicoClient.IPPools()
 
-	nameIpPool := dToString(d,"metadata.0.name")
+	nameIpPool := dToString(d, "metadata.0.name")
 
 	_, err := ipPoolInterface.Delete(ctx, nameIpPool, options.DeleteOptions{})
 	if err != nil {

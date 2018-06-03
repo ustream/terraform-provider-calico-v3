@@ -5,7 +5,6 @@ import (
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	"log"
 )
 
 func resourceCalicoBgpConfiguration() *schema.Resource {
@@ -16,13 +15,13 @@ func resourceCalicoBgpConfiguration() *schema.Resource {
 		Delete: resourceCalicoBgpConfigurationDelete,
 
 		Schema: map[string]*schema.Schema{
-			"metadata": &schema.Schema{
+			"metadata": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: false,
@@ -30,22 +29,22 @@ func resourceCalicoBgpConfiguration() *schema.Resource {
 					},
 				},
 			},
-			"spec": &schema.Schema{
+			"spec": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"log_severity_screen": &schema.Schema{
+						"log_severity_screen": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-						"node_to_node_mesh_enabled": &schema.Schema{
+						"node_to_node_mesh_enabled": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"as_number": &schema.Schema{
+						"as_number": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
@@ -101,7 +100,6 @@ func resourceCalicoBgpConfigurationRead(d *schema.ResourceData, m interface{}) e
 	nameBgpConfiguration := dToString(d, "metadata.0.name")
 
 	BgpConfiguration, err := BgpConfigurationInterface.Get(ctx, nameBgpConfiguration, options.GetOptions{})
-	log.Printf("Obj: %+v", d)
 
 	// Handle endpoint does not exist
 	if err != nil {
