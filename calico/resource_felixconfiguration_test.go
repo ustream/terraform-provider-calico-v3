@@ -22,8 +22,9 @@ func TestAccFelixConfiguration(t *testing.T) {
 					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "metadata.0.name", "testfelixconfiguration"),
 					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.chain_insert_mode", "Insert"),
 					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.default_endpoint_to_host_action", "Drop"),
-					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.failsafe_inbound_host_ports", "{port: 15,	protocol: tcp,},{port: 30,protocol: udp,}"),
-
+					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.ignore_loose_rpf", "true"),
+					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.interface_exclude", "kube-ipvs1"),
+					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.interface_prefix", "calicotest"),
 				),
 			},
 			{
@@ -33,7 +34,9 @@ func TestAccFelixConfiguration(t *testing.T) {
 					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "metadata.0.name", "testfelixconfiguration2"),
 					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.chain_insert_mode", "Append"),
 					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.default_endpoint_to_host_action", "Return"),
-					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.failsafe_inbound_host_ports", "{port: 15,	protocol: tcp,},{port: 30,protocol: udp,}"),
+					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.ignore_loose_rpf", "false"),
+					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.interface_exclude", "kube-ipvs2"),
+					resource.TestCheckResourceAttr("calico_felixconfiguration.test", "spec.0.interface_prefix", "calico"),
 				),
 			},
 		},
@@ -96,17 +99,10 @@ resource "calico_felixconfiguration" "test" {
   }
   spec{
     chain_insert_mode = "Insert"
-	default_endpoint_to_host_action = "drop"
-	failsafe_inbound_host_ports = {
-      {
-		port: 15,
-		protocol: tcp,
-      },
-      {
-		port: 30,
-		protocol: udp,
-	  }
-	}
+	default_endpoint_to_host_action = "Drop"
+	ignore_loose_rpf = true
+	interface_exclude = "kube-ipvs1"
+	interface_prefix = "calicotest"
   }
 }`
 
@@ -117,16 +113,9 @@ resource "calico_felixconfiguration" "test" {
   }
   spec{
     chain_insert_mode = "Append"
-	default_endpoint_to_host_action = "return"
-	failsafe_inbound_host_ports = {
-      {
-		port: 15,
-		protocol: tcp,
-      },
-      {
-		port: 30,
-		protocol: udp,
-	  }
-	}
+	default_endpoint_to_host_action = "Return"
+	ignore_loose_rpf = false
+	interface_exclude = "kube-ipvs2"
+	interface_prefix = "calico"
   }
 }`

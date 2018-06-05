@@ -5,7 +5,6 @@ import (
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	"fmt"
 )
 
 func resourceCalicoFelixConfiguration() *schema.Resource {
@@ -86,9 +85,9 @@ func resourceCalicoFelixConfiguration() *schema.Resource {
 							Default:  false,
 						},
 						"interface_exclude": {
-							Type:     schema.TypeBool,
+							Type:     schema.TypeString,
 							Optional: true,
-							Default:  false,
+							Default:  "kube-ipvs0",
 						},
 						"interface_prefix": {
 							Type:     schema.TypeString,
@@ -120,12 +119,12 @@ func resourceCalicoFelixConfiguration() *schema.Resource {
 							Optional: true,
 							Default:  "/run/xtables.lock",
 						},
-						"iptables_lock_probe_interval_millis": {
+						"iptables_lock_probe_interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  50,
 						},
-						"iptables_lock_timeout_secs": {
+						"iptables_lock_timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  0,
@@ -140,12 +139,12 @@ func resourceCalicoFelixConfiguration() *schema.Resource {
 							Optional: true,
 							Default:  "0xff000000",
 						},
-						"iptables_post_write_check_interval_secs": {
+						"iptables_post_write_check_interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  1,
 						},
-						"iptables_refresh_interval_secs": {
+						"iptables_refresh_interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  90,
@@ -215,17 +214,17 @@ func resourceCalicoFelixConfiguration() *schema.Resource {
 							Optional: true,
 							Default:  true,
 						},
-						"reporting_interval_secs": {
+						"reporting_interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  30,
 						},
-						"reporting_ttl_secs": {
+						"reporting_ttl": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  90,
 						},
-						"reporting_refresh_interval_secs": {
+						"reporting_refresh_interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  90,
@@ -235,12 +234,12 @@ func resourceCalicoFelixConfiguration() *schema.Resource {
 							Optional: true,
 							Default:  true,
 						},
-						"usage_reporting_initial_delay_secs": {
+						"usage_reporting_initial_delay": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  300,
 						},
-						"usage_reporting_interval_secs": {
+						"usage_reporting_interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  86400,
@@ -254,13 +253,66 @@ func resourceCalicoFelixConfiguration() *schema.Resource {
 
 // dToFelixConfigurationSpec return the spec of the FelixConfiguration
 func dToFelixConfigurationSpec(d *schema.ResourceData) (api.FelixConfigurationSpec, error) {
-	spec := api.FelixConfigurationSpec{}
+	//TODO spec.FailsafeInboundHostPorts and spec.FailsafeOutboundHostPorts
+	ignoreLooseRPF := dToBool(d, "spec.0.ignore_loose_rpf")
+	ipipEnabled := dToBool(d, "spec.0.ipip_enabled")
+	ipipMTU := dToInt(d, "spec.0.ipip_mtu")
+	ipsetsRefreshInterval := dToDuration(d, "spec.0.ipsets_refresh_interval")
+	iptablesLockProbeInterval := dToDuration(d, "spec.0.iptables_lock_probe_interval")
+	iptablesLockTimeout := dToDuration(d, "spec.0.iptables_lock_timeout")
+	iptablesMarkMask := dToUint32(d, "spec.0.iptables_mark_mask")
+	iptablesPostWriteCheckInterval := dToDuration(d, "spec.0.iptables_post_write_check_interval")
+	iptablesRefreshInterval := dToDuration(d, "spec.0.iptables_refresh_interval")
+	ipv6Support := dToBool(d, "spec.0.ipv6_support")
+	maxIpsetSize := dToInt(d, "spec.0.max_ipset_size")
+	metadataPort := dToInt(d, "spec.0.metadata_port")
+	prometheusGoMetricsEnabled := dToBool(d, "spec.0.prometheus_go_metrics_enabled")
+	prometheusMetricsEnabled := dToBool(d, "spec.0.prometheus_metrics_enabled")
+	prometheusMetricsPort := dToInt(d, "spec.0.prometheus_metrics_port")
+	prometheusProcessMetricsEnabled := dToBool(d, "spec.0.prometheus_process_metrics_enabled")
+	reportingInterval := dToDuration(d, "spec.0.reporting_interval")
+	reportingTTL := dToDuration(d, "spec.0.reporting_ttl")
+	routeRefreshInterval := dToDuration(d, "spec.0.route_refresh_interval")
+	usageReportingEnabled := dToBool(d, "spec.0.usage_reporting_enabled")
+	usageReportingInitialDelay := dToDuration(d, "spec.0.usage_reporting_initial_delay")
+	usageReportingInterval := dToDuration(d, "spec.0.usage_reporting_interval")
 
+	spec := api.FelixConfigurationSpec{}
 	spec.ChainInsertMode = dToString(d, "spec.0.chain_insert_mode")
 	spec.DefaultEndpointToHostAction = dToString(d, "spec.0.default_endpoint_to_host_action")
-
-	fmt.Errorf("%+v", dToMap(d, "spec.0.failsafe_inbound_host_ports"))
-
+	spec.IgnoreLooseRPF = &ignoreLooseRPF
+	spec.InterfaceExclude = dToString(d, "spec.0.interface_exclude")
+	spec.InterfacePrefix = dToString(d, "spec.0.interface_prefix")
+	spec.IPIPEnabled = &ipipEnabled
+	spec.IPIPMTU = &ipipMTU
+	spec.IpsetsRefreshInterval = &ipsetsRefreshInterval
+	spec.IptablesFilterAllowAction = dToString(d, "spec.0.iptables_filter_allow_action")
+	spec.IptablesLockFilePath = dToString(d, "spec.0.iptables_lock_file_path")
+	spec.IptablesLockProbeInterval = &iptablesLockProbeInterval
+	spec.IptablesLockTimeout = &iptablesLockTimeout
+	spec.IptablesMangleAllowAction = dToString(d, "spec.0.iptables_mangle_allow_action")
+	spec.IptablesMarkMask = &iptablesMarkMask
+	spec.IptablesPostWriteCheckInterval = &iptablesPostWriteCheckInterval
+	spec.IptablesRefreshInterval = &iptablesRefreshInterval
+	spec.IPv6Support = &ipv6Support
+	spec.LogFilePath = dToString(d, "spec.0.log_file_path")
+	spec.LogPrefix = dToString(d, "spec.0.log_prefix")
+	spec.LogSeverityFile = dToString(d, "spec.0.log_severity_file")
+	spec.LogSeverityScreen = dToString(d, "spec.0.log_severity_screen")
+	spec.LogSeveritySys = dToString(d, "spec.0.log_severity_sys")
+	spec.MaxIpsetSize = &maxIpsetSize
+	spec.MetadataAddr = dToString(d, "spec.0.metadata_addr")
+	spec.MetadataPort = &metadataPort
+	spec.PrometheusGoMetricsEnabled = &prometheusGoMetricsEnabled
+	spec.PrometheusMetricsEnabled = &prometheusMetricsEnabled
+	spec.PrometheusMetricsPort = &prometheusMetricsPort
+	spec.PrometheusProcessMetricsEnabled = &prometheusProcessMetricsEnabled
+	spec.ReportingInterval = &reportingInterval
+	spec.ReportingTTL = &reportingTTL
+	spec.RouteRefreshInterval = &routeRefreshInterval
+	spec.UsageReportingEnabled = &usageReportingEnabled
+	spec.UsageReportingInitialDelay = &usageReportingInitialDelay
+	spec.UsageReportingInterval = &usageReportingInterval
 
 	return spec, nil
 }

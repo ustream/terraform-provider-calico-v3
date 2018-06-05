@@ -5,6 +5,7 @@ import (
 	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/numorstring"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"time"
 )
 
 // Generate the metadata of the resource
@@ -28,21 +29,6 @@ func dToAsNumber(d *schema.ResourceData, field string) numorstring.ASNumber {
 	return f
 }
 
-func dToProtoPort(d *schema.ResourceData, field string) map[string]string {
-	if v, ok := d.GetOk(field); ok {
-		labelMap := v.(map[string]interface{})
-		labels := make(map[string]string, len(labelMap))
-
-		for k, v := range labelMap {
-			labels[k] = v.(string)
-		}
-		Labels := labels
-		return Labels
-	} else {
-		return nil
-	}
-}
-
 // Convert field to string
 func dToString(d *schema.ResourceData, field string) string {
 	f := d.Get(field).(string)
@@ -55,9 +41,22 @@ func dToBool(d *schema.ResourceData, field string) bool {
 	return f
 }
 
-// Convert field to map
-func dToMap(d *schema.ResourceData, field string) map[string]interface{} {
-	f := d.Get(field).(map[string]interface{})
-
+// Convert field to int
+func dToInt(d *schema.ResourceData, field string) int {
+	f := d.Get(field).(int)
 	return f
+}
+
+// Convert field to uint32
+func dToUint32(d *schema.ResourceData, field string) uint32 {
+	f := uint32(d.Get(field).(uint))
+	return f
+}
+
+// Convert field to duration
+func dToDuration(d *schema.ResourceData, field string) meta.Duration {
+	f := time.Duration(dToInt(d, field))
+	f2 := meta.Duration{f}
+
+	return f2
 }
