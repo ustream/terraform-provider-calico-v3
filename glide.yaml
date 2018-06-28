@@ -1,4 +1,4 @@
-package: github.com/youkoulayley/terraform-provider-calico
+package: github.com/cdiscount/terraform-provider-calico
 import:
 - package: github.com/hashicorp/terraform
   version: ^0.11.7
@@ -13,8 +13,12 @@ import:
   - lib/apis/v3
   - lib/clientv3
   - lib/errors
-  - lib/net
+  - lib/numorstring
   - lib/options
 - package: k8s.io/apimachinery
   subpackages:
   - pkg/apis/meta/v1
+- package: github.com/golang/protobuf
+  version: ^1.1.0
+  subpackages:
+  - protoc-gen-go
