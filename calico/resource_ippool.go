@@ -1,12 +1,10 @@
 package calico
 
 import (
-	"log"
 	"github.com/hashicorp/terraform/helper/schema"
+	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
 	"github.com/projectcalico/libcalico-go/lib/errors"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	api "github.com/projectcalico/libcalico-go/lib/apis/v3"
-	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func resourceCalicoIpPool() *schema.Resource {
@@ -17,13 +15,13 @@ func resourceCalicoIpPool() *schema.Resource {
 		Delete: resourceCalicoIpPoolDelete,
 
 		Schema: map[string]*schema.Schema{
-			"metadata": &schema.Schema {
-				Type: schema.TypeList,
+			"metadata": {
+				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: false,
@@ -31,26 +29,26 @@ func resourceCalicoIpPool() *schema.Resource {
 					},
 				},
 			},
-			"spec": &schema.Schema{
+			"spec": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"cidr": &schema.Schema{
+						"cidr": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-						"nat_outgoing": &schema.Schema{
+						"nat_outgoing": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"ipip_mode": &schema.Schema{
-							Type: schema.TypeString,
+						"ipip_mode": {
+							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"disabled": &schema.Schema{
+						"disabled": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
@@ -65,29 +63,15 @@ func resourceCalicoIpPool() *schema.Resource {
 func dToIpPoolSpec(d *schema.ResourceData) (api.IPPoolSpec, error) {
 	spec := api.IPPoolSpec{}
 
-	cidr := d.Get("spec.0.cidr").(string)
-	spec.CIDR = cidr
-
-	ipipMode := d.Get("spec.0.ipip_mode").(api.IPIPMode)
-	spec.IPIPMode = ipipMode
-
-	natOutgoing := d.Get("spec.0.nat_outgoing").(bool)
-	spec.NATOutgoing = natOutgoing
-
-	disabled := d.Get("spec.0.disabled").(bool)
-	spec.Disabled = disabled
+	spec.CIDR = dToString(d, "spec.0.cidr")
+	spec.NATOutgoing = dToBool(d, "spec.0.nat_outgoing")
+	spec.Disabled = dToBool(d, "spec.0.disabled")
+	spec.IPIPMode = dToIpIpMode(d, "spec.0.ipip_mode")
 
 	return spec, nil
 }
 
 // dToIpPoolSpec return the metadata of the ippool
-func dToIpPoolTypeMeta(d *schema.ResourceData) (meta.ObjectMeta, error) {
-	objectMeta := meta.ObjectMeta{}
-
-	objectMeta.Name = d.Get("metadata.0.name").(string)
-
-	return objectMeta, nil
-}
 
 // resourceCalicoIpPoolCreate create a new ippool in Calico
 func resourceCalicoIpPoolCreate(d *schema.ResourceData, m interface{}) error {
@@ -113,10 +97,9 @@ func resourceCalicoIpPoolRead(d *schema.ResourceData, m interface{}) error {
 	calicoClient := m.(config).Client
 	ipPoolInterface := calicoClient.IPPools()
 
-	nameIpPool := d.Get("metadata.0.name").(string)
+	nameIpPool := dToString(d, "metadata.0.name")
 
 	ipPool, err := ipPoolInterface.Get(ctx, nameIpPool, options.GetOptions{})
-	log.Printf("Obj: %+v", d)
 
 	// Handle endpoint does not exist
 	if err != nil {
@@ -163,7 +146,7 @@ func resourceCalicoIpPoolDelete(d *schema.ResourceData, m interface{}) error {
 	calicoClient := m.(config).Client
 	ipPoolInterface := calicoClient.IPPools()
 
-	nameIpPool := d.Get("metadata.0.name").(string)
+	nameIpPool := dToString(d, "metadata.0.name")
 
 	_, err := ipPoolInterface.Delete(ctx, nameIpPool, options.DeleteOptions{})
 	if err != nil {
@@ -182,12 +165,13 @@ func createIpPoolApiRequest(d *schema.ResourceData) (*api.IPPool, error) {
 	}
 
 	// Set Metadata to Kubernetes Metadata
-	objectMeta, err := dToIpPoolTypeMeta(d)
+	objectMeta, err := dToTypeMeta(d)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create a new IP Pool, with TypeMeta filled in
+	// Then, fill the metadata and the spec
 	// Then, fill the metadata and the spec
 	newIpPool := api.NewIPPool()
 	newIpPool.ObjectMeta = objectMeta

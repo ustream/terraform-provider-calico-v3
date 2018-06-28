@@ -13,7 +13,7 @@ import:
   - lib/apis/v3
   - lib/clientv3
   - lib/errors
-  - lib/net
+  - lib/numorstring
   - lib/options
 - package: k8s.io/apimachinery
   subpackages:
