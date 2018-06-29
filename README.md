@@ -22,6 +22,7 @@ make build
   * [IP Pools](docs/ippools.md)
   * [BGP Peers](docs/bgppeers.md)
   * [BGP Configurations](docs/bgpconfigurations.md)
+  * [Felix Configuration](docs/felixconfiguration.md)
 
 ## Testing
 The tests can be run with a ETCD dockerized with this command:
