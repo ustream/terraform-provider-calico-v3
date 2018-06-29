@@ -1,6 +1,5 @@
 package calico
 
-
 import (
 	"testing"
 
@@ -29,9 +28,9 @@ func TestProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
 }
 
-
 func TestAccPreCheck(t *testing.T) {
 	variables := []string{
+		"CALICO_BACKEND_TYPE",
 		"CALICO_ETCD_ENDPOINTS",
 	}
 
@@ -41,4 +40,10 @@ func TestAccPreCheck(t *testing.T) {
 			t.Fatalf("`%s` must be set for acceptance tests!", variable)
 		}
 	}
+}
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+
+	os.Exit(code)
 }

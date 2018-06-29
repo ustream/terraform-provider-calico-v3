@@ -1,15 +1,15 @@
 package calico
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/projectcalico/libcalico-go/lib/apiconfig"
 	client "github.com/projectcalico/libcalico-go/lib/clientv3"
-	"os"
-	"context"
 	"github.com/projectcalico/libcalico-go/lib/options"
+	"log"
+	"os"
 	"time"
 )
 
@@ -107,8 +107,10 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"calico_ippool":       resourceCalicoIpPool(),
-			"calico_bgppeer": 	   resourceCalicoBgpPeer(),
+			"calico_ippool":             resourceCalicoIpPool(),
+			"calico_bgppeer":            resourceCalicoBgpPeer(),
+			"calico_bgpconfiguration":   resourceCalicoBgpConfiguration(),
+			"calico_felixconfiguration": resourceCalicoFelixConfiguration(),
 		},
 
 		ConfigureFunc: providerConfigure,
