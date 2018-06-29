@@ -10,7 +10,6 @@ import (
 	"github.com/projectcalico/libcalico-go/lib/options"
 	"log"
 	"os"
-	"time"
 )
 
 type config struct {
@@ -18,7 +17,7 @@ type config struct {
 }
 
 var ctx = context.Background()
-var opts = options.SetOptions{30 * time.Second}
+var opts = options.SetOptions{}
 
 // Provider is the provider for terraform
 func Provider() terraform.ResourceProvider {
