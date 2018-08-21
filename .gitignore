@@ -1,6 +1,5 @@
 .idea/
 dist/
-vendor/
 
 glide.lock
 terraform-provider-calico
