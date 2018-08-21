@@ -2,5 +2,4 @@
 dist/
 
 glide.lock
-terraform-provider-calico
-token
+terraform-provider-calico-v3
