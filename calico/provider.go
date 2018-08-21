@@ -3,13 +3,14 @@ package calico
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/projectcalico/libcalico-go/lib/apiconfig"
 	client "github.com/projectcalico/libcalico-go/lib/clientv3"
 	"github.com/projectcalico/libcalico-go/lib/options"
-	"log"
-	"os"
 )
 
 type config struct {
@@ -106,9 +107,10 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"calico_ippool":             resourceCalicoIpPool(),
-			"calico_bgppeer":            resourceCalicoBgpPeer(),
-			"calico_bgpconfiguration":   resourceCalicoBgpConfiguration(),
+			"calicov3_global_network_policy": resourceGlobalNetworkPolicy(),
+			"calicov3_ippool":                resourceCalicoIpPool(),
+			"calicov3_bgppeer":               resourceCalicoBgpPeer(),
+			"calicov3_bgpconfiguration":      resourceCalicoBgpConfiguration(),
 		},
 
 		ConfigureFunc: providerConfigure,
