@@ -3,9 +3,10 @@ package calico
 import (
 	"testing"
 
+	"os"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"os"
 )
 
 var testAccProvider *schema.Provider
