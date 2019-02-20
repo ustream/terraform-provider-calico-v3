@@ -105,7 +105,9 @@ func Provider() terraform.ResourceProvider {
 				Description: "Token to connect to the APIServer",
 			},
 		},
-
+		DataSourcesMap: map[string]*schema.Resource{
+			"calicov3_nodes": dataSourceNodes(),
+		},
 		ResourcesMap: map[string]*schema.Resource{
 			"calicov3_host_endpoint":         resourceHostEndpoint(),
 			"calicov3_global_network_policy": resourceGlobalNetworkPolicy(),
