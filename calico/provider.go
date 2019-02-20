@@ -107,6 +107,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"calicov3_host_endpoint":         resourceHostEndpoint(),
 			"calicov3_global_network_policy": resourceGlobalNetworkPolicy(),
 			"calicov3_ippool":                resourceCalicoIpPool(),
 			"calicov3_bgppeer":               resourceCalicoBgpPeer(),
